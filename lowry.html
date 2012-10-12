@@ -1,0 +1,96 @@
+<!#DOCTYPE HTML>
+<html><head></head>
+<body style="background:white">
+
+<script src='raphael.js'> </script>
+
+<script>
+
+function drawLogo(xpos, ypos, radius) {
+
+	var points = 5;
+	var redcircle_radius = .33 * radius;
+	var triangle_height = 1.2 * (radius - redcircle_radius);
+	var triangle_width = triangle_height * Math.sin(Math.PI / points / 2);
+
+	var paper = Raphael(0, 0, 4 * radius, 4 * radius);
+	var xcenter = 2 * radius;
+	var ycenter = 2 * radius;
+	var xnoon =   xcenter;
+	var ynoon =   radius;
+
+	// rectangle background
+	var bluerect_height = .68 * radius;
+	var bluerect_width = radius * 3.5;
+	var bluerect_stroke = radius / 6;
+
+	var redrect_height = radius / 9;
+	var redrect_width = radius * 3.25;
+	var redrect_stroke = radius / 12;
+
+	var bluerect = paper.rect(
+		xcenter - (bluerect_width / 2),
+		ycenter - (bluerect_height / 2),
+		bluerect_width, bluerect_height)
+		.attr({
+			fill: "white",
+			stroke: "midnightblue",
+			"stroke-width": bluerect_stroke
+		});
+
+	var redrect = paper.rect(
+		xcenter - (redrect_width / 2),
+		ycenter - (redrect_height / 2),
+		redrect_width, redrect_height)
+		.attr({
+			fill: "red",
+			stroke: "red",
+			"stroke-width": redrect_stroke
+		});
+
+	var spin = 0;	// 360/60/8;
+	if (spin) {
+		var barangle = 0;
+		window.setInterval(function() {
+			angle += spin;
+			bluerect.transform("r" + angle + " " + xcenter + " " + ycenter);
+			redrect.transform("r" + angle + " " + xcenter + " " + ycenter);
+		}, 125);
+	}
+
+	var outercircle = paper.circle(xcenter, ycenter, radius)
+		.attr({
+			fill: "midnightblue",
+			stroke: "midnightblue"
+		});
+
+	for (var m = 0; m < points; m++) {
+		var angle = (m / points) * 360;
+		var tri = paper.path(Raphael.format(
+			"M{0},{1} L{2},{3} L{4},{5} Z",
+			xnoon, ynoon, 
+			xnoon - triangle_width, ynoon + triangle_height,
+			xnoon + triangle_width, ynoon + triangle_height
+		))
+		.attr({
+			fill: "white",
+			stroke: "white"
+		})
+		.transform("r" + angle + " " + xcenter + " " + ycenter);
+	}
+
+	var innercircle = paper.circle(xcenter, ycenter, redcircle_radius)
+		.attr({
+			fill: "red",
+			stroke: "red"
+		});
+}
+
+
+drawLogo(10,10,10);
+drawLogo(25,25,25);
+drawLogo(100,100,100);
+drawLogo(500, 500, 300);
+
+</script>
+</body></html>

@@ -1,0 +1,115 @@
+<!#DOCTYPE HTML>
+<html><head></head>
+<body style="background:black">
+
+<script src='raphael.js'> </script>
+<script>
+
+var xsize = 1000;
+var ysize = 1000;
+
+var planet = {
+	r: 25,
+	x: .5 * xsize,
+	y: .33 * ysize,
+	c: "darkgray",
+	g: -10000000
+}
+
+var planet2 = {
+	r: 40,
+	x: .5 * xsize,
+	y: .66 * ysize,
+	c: "white",
+	g: -30000000
+}
+
+var nparticles = 30;
+var p = [];
+
+var demo_p = {
+	r: 5,
+	x: planet.x + 0 * planet.r,
+	y: planet.y - 3 * planet.r,
+	vx: 200 + Math.random() * 100,
+	vy: 0,
+	c: "red",
+	t: "white"
+};
+
+function initParticle(i) {
+	p[i].x = planet.x;		// Math.random() * 500;
+	p[i].y = planet.y + Math.random() * (planet2.y - planet.y);
+	p[i].vx = (Math.random() * 1500) - 750;
+	p[i].vy = (Math.random() * 200) - 100;		// Math.random() * 200;
+	p[i].t = Raphael.getColor();
+}
+
+function drawOrbit() {
+
+
+	var paper = Raphael(0, 0, xsize, ysize);
+
+	var planet_circle = paper.circle(planet.x, planet.y, planet.r)
+		.attr({
+			fill: planet.c,
+			stroke: planet.c
+		});
+
+	var planet2_circle = paper.circle(planet2.x, planet2.y, planet2.r)
+		.attr({
+			fill: planet2.c,
+			stroke: planet2.c
+		});
+
+	for (var i=0; i< nparticles; i++) {
+		p[i] = {};
+		initParticle(i);
+	}
+	
+	//var particle = paper.circle(p.x, p.y, p.r)
+	//	.attr({
+	//		fill: p.c,
+	//		stroke: p.c
+	//	});
+
+	window.setInterval(function() {
+		var dt = .01;
+
+		for (var i=0; i < p.length; i++) {
+			var dx = p[i].x - planet.x;
+			var dy = p[i].y - planet.y;
+			var r = Math.sqrt((dx * dx) + (dy * dy));
+	
+			if ((r <= planet.r) || (r > xsize)) {
+				initParticle(i);
+				return;
+			}
+			p[i].vx = p[i].vx + (planet.g * (dx / r) / (r * r)) * dt;
+			p[i].vy = p[i].vy + (planet.g * (dy / r) / (r * r)) * dt;
+	
+			var dx = p[i].x - planet2.x;
+			var dy = p[i].y - planet2.y;
+			var r = Math.sqrt((dx * dx) + (dy * dy));
+			if ((r <= planet2.r) || (r > xsize)) {
+				initParticle(i);
+				return;
+			}
+			p[i].vx = p[i].vx + (planet2.g * (dx / r) / (r * r)) * dt;
+			p[i].vy = p[i].vy + (planet2.g * (dy / r) / (r * r)) * dt;
+	
+			p[i].x = p[i].x + (p[i].vx * dt);
+			p[i].y = p[i].y + (p[i].vy * dt);
+			var dot = paper.circle(p[i].x, p[i].y, 1).attr({
+				fill: p[i].t,
+				stroke: p[i].t
+			});
+		}
+	}, 20);
+
+}
+
+drawOrbit(400, 400, 100);
+
+</script>
+</body></html>

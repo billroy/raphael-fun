@@ -1,0 +1,104 @@
+<!#DOCTYPE HTML>
+<html><head></head>
+<body style="background:black">
+
+<script src='jquery-1.8.2.min.js'> </script>
+<script src='raphael.js'> </script>
+
+<script>
+
+var xsize = $(window).width();
+var ysize = $(window).height();
+
+var button_width = 30;
+var button_height = 30;
+var corner_radius = 10;
+var button_stroke = 3;
+var gutter = 10;
+
+var xbuttons = Math.floor(xsize / (gutter + button_width));
+var ybuttons = Math.floor(ysize / (gutter + button_height));
+var buttons = [];
+
+//var colors = ["red","orange","yellow","green","blue","indigo","violet"];
+var colors = ["green","yellow", "red"];
+var border_color = "gray";
+var highlight_color = "white";
+
+var colorbase = 0.0;
+//var colorbase = 410;
+var colorincrement = 1 / (xbuttons * ybuttons);
+
+function getRandomColor() {
+	//return Raphael.hsl2rgb(Math.random(), .8, 0.5).hex;
+	//return Raphael.hsl2rgb(0.48 + Math.random() * .03, .8, 0.5).hex;
+	//return Raphael.hsl2rgb(colorbase / 1000, .8, 0.5).hex;
+	return Raphael.hsl2rgb(colorbase, .99, 0.5).hex;
+	//return colors[Math.floor(Math.random() * colors.length)];
+}
+
+function darker(color) {
+	c = Raphael.color(color);
+	//console.log(color);
+	return Raphael.hsl2rgb(c.h, c.s, .8 * c.l).hex;
+}
+
+function lighter(color) {
+	c = Raphael.color(color);
+	var l = Math.min(1.0, 2 * c.l);
+	return Raphael.hsl2rgb(c.h, c.s, l).hex;
+}
+
+function drawBoard() {
+
+	var paper = Raphael(0, 0, xsize, ysize);
+	var button_id = 0;
+
+	for (var ypos = gutter; (ypos + button_height) < ysize; ypos += (button_height + gutter)) {
+		for (var xpos = gutter; (xpos + button_width) < xsize; xpos += (button_width + gutter)) {
+			var color = getRandomColor();
+			var b = paper.rect(xpos, ypos, button_width, button_height, corner_radius)
+				.attr({
+					fill: color,
+					stroke: darker(color),
+					"stroke-width": button_stroke
+				})
+				.mousedown(function() {
+					this.attr({fill: "white"});
+				})
+				.click(function() {
+					this.attr({fill: getRandomColor()});
+				})
+				.mouseover(function() {
+					this.attr({stroke: highlight_color});
+				})
+				.mouseout(function() {
+					this.attr({stroke: border_color});
+				});
+
+			//paper.text(xpos + button_width/2, ypos + button_height/2, ""+button_id++)
+			var label = "" + Math.floor(colorbase*1000);
+			colorbase = colorbase + colorincrement;
+			paper.text(xpos + button_width/2, ypos + button_height/2, label)
+				.attr({"font-size": 16});
+
+			if (0) window.setInterval(function(b) {
+				b.attr({fill: getRandomColor()});
+			}, Math.floor(Math.random() * 60000), b);
+
+			buttons.push(b);
+		}
+	}
+
+	if (0) for (var i=0; i < buttons.length; i++) {
+		window.setInterval(function(i) {
+			buttons[i].attr({fill: getRandomColor()});
+		}, Math.floor(Math.random() * 1000), i);
+	}
+}
+
+drawBoard();
+
+
+</script>
+</body></html>

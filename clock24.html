@@ -21,7 +21,10 @@ function drawSlice(paper, cx, cy, r, startAngle, endAngle, params) {
         x2 = cx + r * Math.cos(-endAngle * rad),
         y1 = cy + r * Math.sin(-startAngle * rad),
         y2 = cy + r * Math.sin(-endAngle * rad);
-    return paper.path(["M", cx, cy, "L", x1, y1, "A", r, r, 0, +(endAngle - startAngle > 180), 0, x2, y2, "z"]).attr(params);
+    //return paper.path(["M", cx, cy, "L", x1, y1, "A", r, r, 0, +(endAngle - startAngle > 180), 0, x2, y2, "z"]).attr(params);
+    return paper.path([
+    	"M", x1, y1, 
+    	"A", r, r, 0, +(endAngle - startAngle > 180), 0, x2, y2, "z"]).attr(params);
 }
 
 function drawClock(xpos, ypos, radius) {
@@ -31,44 +34,49 @@ function drawClock(xpos, ypos, radius) {
 	var ycenter = radius;
 	var outercircle = paper.circle(xcenter, ycenter, radius)
 		.attr({
-			fill: "white",
+			fill: "darkblue",
 			stroke: "black"
 		});
 
 	var xnoon = radius;
 	var ynoon = 0;
 
-	var bigbaton_width = 10;	// pixels
-	var bigbaton_height = 15;	// percent of r
+	var bigbaton_width = 9;	// pixels
+	var bigbaton_height = 12.5;	// percent of r
 	var baton_width = 1;		// pixels
 	var baton_height = 2;		// percent of r
-	var hand_width = bigbaton_width * 1.25;
+	var hand_width = 24;
 	var dotradius = bigbaton_width;
 
-	drawSlice(paper, xcenter, ycenter, radius, hourAngle(0), hourAngle(12),
+	drawSlice(paper, xcenter, ycenter, radius * (100-baton_height) / 100,
+		hourAngle(0), hourAngle(12),
 		//{fill: Raphael.hsb(.6, .8, .6)});
-		{fill: "90-#00f-#fff"});
+		{fill: "90-#00f-#fff", "stroke-width":0});
 
-	drawSlice(paper, xcenter, ycenter, radius, hourAngle(12), hourAngle(0),
+	drawSlice(paper, xcenter, ycenter, radius * (100-baton_height) / 100,
+		hourAngle(12), hourAngle(0),
 		//{fill: Raphael.hsb(.05, .8, .9)});
 		//{fill: "yellow", "fill-opacity": 0.5});
-		{fill: "90-#fff-#ff0"});
+		{fill: "90-#fff-#ff0", "stroke-width":0});
 
 	for (var m=0; m<60; m++) {
+		var width = (m % 5) ? baton_width : baton_width + 4;
+
 		var baton = paper.rect(
-			xnoon - (baton_width / 2), ynoon, 
-			(m % 5) ? baton_width : 5 * baton_width, 
+			xnoon - width / 2, ynoon, 
+			width,
 			radius * (baton_height/100))
 		.attr({
-			fill: (m % 5) ? "gray" : "green",
-			stroke: (m % 5) ? "gray" : "green"
+			fill: (m % 5) ? "gray" : "lightgreen",
+			stroke: (m % 5) ? "gray" : "lightgreen"
 		})
 		.rotate(minuteAngle(m), xcenter, ycenter);
 	}
 
 	for (var h=0; h<24; h++) {
 		var hourbaton = paper.rect(
-			xnoon - (bigbaton_width / 2), ynoon + radius * ((baton_height+1)/100),
+			xnoon - (bigbaton_width / 2), 
+			ynoon + radius * ((baton_height*2)/100),
 			bigbaton_width, 
 			radius * (bigbaton_height/100))
 		.attr({
@@ -89,21 +97,39 @@ function drawClock(xpos, ypos, radius) {
 		.attr({stroke: "black"});
 
 
-	var hourhand = paper.rect(
-		xnoon - (hand_width/2), 
-		ynoon + radius * ((bigbaton_height + 5)/100),
-		hand_width, radius * (100-bigbaton_height+12)/100)
+//	var old_hourhand = paper.rect(
+//		xnoon - (hand_width/2), 
+//		ynoon + radius * ((baton_height + bigbaton_height + 10)/100),
+//		hand_width, radius * (100-bigbaton_height+12)/100)
+//		.attr({
+//			fill: "black",
+//			stroke: "black"
+//		});
+
+	var hourhand = paper.path([
+		"M", xnoon, ynoon + radius * ((baton_height + bigbaton_height + 10)/100),
+		"L", xnoon - (hand_width/1), ynoon + radius * 1.15,
+		"H", xnoon + (hand_width/1), "z"])
 		.attr({
 			fill: "black",
-			stroke: "black"
+			stroke: "white"
 		});
 
-	var minutehand = paper.rect(
-		xnoon - (hand_width/2), ynoon + radius * (baton_height/100),
-		hand_width, radius * (100 + baton_height)/100)
+//	var minutehand = paper.rect(
+//		xnoon - (hand_width/2), ynoon + radius * (baton_height/100),
+//		hand_width/2, radius * (100 + baton_height)/100)
+//		.attr({
+//			fill: "lightgreen",
+//			stroke: "black"
+//		});
+
+	var minutehand = paper.path([
+		"M", xnoon, ynoon + radius * (baton_height/100),
+		"L", xnoon - (hand_width/2), ynoon + radius * 1.25,
+		"H", xnoon + (hand_width/2), "z"])
 		.attr({
 			fill: "black",
-			stroke: "black"
+			stroke: "lightgreen"
 		});
 
 	var secondhand = paper.rect(

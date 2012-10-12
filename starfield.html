@@ -1,0 +1,176 @@
+<!#DOCTYPE HTML>
+<html><head></head>
+<body style="background:black">
+
+<script src='jquery-1.8.2.min.js'> </script>
+<script src='raphael.js'> </script>
+
+<script>
+
+var starfield = {
+
+	stars: [],
+	numstars: 30,
+	maxx: $(window).width(),
+	maxy: $(window).height(),
+	maxv: 2,
+	minv: 1,
+	maxr: 6,
+	framedelay: 50,
+	accel: false,
+	xaccel: 1.04,
+	yaccel: 1.02,
+	bounce: false,
+	rotizzy: false,
+
+	init: function() {
+		this.paper = Raphael(0, 0, this.maxx, this.maxy);
+		this.colors = this.colorsgrayscale;
+		for (var i=0; i < this.numstars; i++) {
+			this.initstar(i);
+			window.setInterval(function(star) {
+				starfield.updatestar(star);
+			}, self.framedelay, i);
+		}
+	},
+
+	initstar: function(star) {
+
+		var self = this;
+		var theta = Math.random() * Math.PI * 2.;
+		if (self.rotizzy) {
+			theta = self.theta + (Math.PI * 2 / 100);
+			self.theta = theta;
+		}
+		var z = Math.random();
+		var v = self.minv + z * (self.maxv - self.minv);
+		var r = z * self.maxr + 2;
+
+		var s = self.stars[star] = {
+			x: self.maxx/2,
+			y: self.maxy/2,
+			x0: self.maxx/2,
+			y0: self.maxy/2,
+			vx: v * Math.cos(theta),
+			vy: v * Math.sin(theta),
+			r: r,
+			ci: self.getColor(),
+			ri: r-2,
+			c: self.getbgColor()
+		};
+		s.elt = self.paper.circle(s.x, s.y, s.r).attr({fill: s.ci});
+	},
+	
+	updatestar: function(starid) {
+
+		var self = this;
+		var s = self.stars[starid];
+		var oldx = s.x;
+		var oldy = s.y;
+		s.x = s.x + s.vx;
+		s.y = s.y + s.vy;
+
+		if (this.accel) {
+			s.vx *= self.xaccel;
+			s.vy *= self.yaccel;
+		}
+
+		if (self.bounce) {
+			if ((s.x < 0) || (s.x > self.maxx)) s.vx *= -1;
+			if ((s.y < 0) || (s.y > self.maxy)) s.vy *= -1;
+		}
+		else if ((s.x < 0) || (s.x > self.maxx) || (s.y < 0) || (s.y > self.maxy)) {
+			s.elt.remove();
+			self.initstar(starid);
+			return;
+		}
+
+		var translation = "t" + Math.floor(s.x-s.x0) + "," + Math.floor(s.y-s.y0);
+		s.elt.transform(translation);
+	},
+
+	// grayscale fun
+	colorsgrayscale: [
+		'#101010',
+		'#202020',
+		'#303030',
+		'#404040',
+		'#505050',
+		'#606060',
+		'#707070',
+		'#808080',
+		'#909090',
+		'#a0a0a0',
+		'#b0b0b0',
+		'#c0c0c0',
+		'#d0d0d0',
+		'#e0e0e0',
+		'#f0f0f0'
+	],
+
+	// from Piet Mondrian Pumpkin
+	colorspm: [
+		'#fe0000',	//red
+		'#0404a2',	//blue
+		'#fffc3b',	//yelo
+		'#fefefe',	//wht
+		'#1c1412',	// black
+				'#00a050',	// light green
+				'#5d4db8',	// alt blue-purple
+		'#c0c0c0'	// gray
+	],
+
+	colors33: [
+		'#5d4db8',	// alt blue-purple
+		'#3de6f9'	// teal, 
+	],
+
+	// from Chatfield State Bark 2007 Balloon Fiesta	
+	colorschatfield: [
+		'#2856c5',	// royal blue
+		'#ff002c',	// energizer pink
+		'#d62f34',	// orangey
+		'#9c6dad',	// purple
+		'#66bf61',	// lime
+		'#fff364',		// melo yelo
+		'#726269',	// grayblk
+		'#fedfbf',	// whitish
+		'#726389'	// purp2
+	],
+
+	// from Stapleton Cows 2006
+	colorsstaplecows: [
+		'#4040f0',	// light blue
+		'#00a050',	// light green
+		'#404090',	// dark blue
+		'#fafa14',	// yellow, take 2	'#e0a010'	// yellow
+		'#c400ae'	// magenta
+	],
+
+	getColor: function() {
+		return this.colors[Math.floor(Math.random()*this.colors.length)];
+	},
+	getPos: function() {
+		return Math.random() * 500;
+	},
+
+	getbgColor: function(i) {
+		//return '#f0f080';
+		return this.getGradientColor(i, this.numstars);
+	},
+
+	getGradientColor: function(val, max) {
+		//return '#ffffff';
+		var p = Math.floor((val / max)*240);
+		var d1 = Math.floor(p/16);
+		var d2 = p % 16;
+		var d = '0123456789ABCDEF';
+		var dd = '' + d.charAt(d1) + d.charAt(d2);
+		var bg = '#' + dd + dd + dd;
+		return bg;
+	}	
+};
+starfield.init();
+
+</script>
+</body></html>

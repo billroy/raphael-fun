@@ -1,0 +1,118 @@
+<!#DOCTYPE HTML>
+<html><head></head>
+<body style="background:black">
+
+<script src='raphael.js'> </script>
+
+<script>
+
+function hourAngle(hour) {
+	return ((hour/12) * 360);
+}
+
+function minuteAngle(minute) {
+	return ((minute/60) * 360);
+}
+
+function drawClock(xpos, ypos, radius) {
+
+	var paper = Raphael(xpos, ypos, 2 * radius, 2 * radius);
+	var xcenter = radius;
+	var ycenter = radius;
+	var outercircle = paper.circle(xcenter, ycenter, radius)
+		.attr({
+			fill: "white",
+			stroke: "black"
+		});
+
+	var xnoon = radius;
+	var ynoon = 0;
+
+	var bigbaton_width = 25;	// pixels
+	var bigbaton_height = 25;	// percent of r
+	var baton_width = 4;		// pixels
+	var baton_height = 8		// percent of r
+	var hand_width = bigbaton_width * 1.25;
+	var dotradius = bigbaton_width;
+
+	for (var m=0; m<60; m++) {
+		if ((m % 5) == 0) {
+			var bigbaton = paper.rect(
+				xnoon - (bigbaton_width / 2),
+				ynoon, bigbaton_width, radius * (bigbaton_height/100))
+			.attr({
+				fill: "black",
+				stroke: "black"
+			})
+			.rotate(minuteAngle(m), xcenter, ycenter);
+		}
+		else {
+			var baton = paper.rect(
+				xnoon - (baton_width / 2),
+				ynoon, baton_width, radius * (baton_height/100))
+			.attr({
+				fill: "black",
+				stroke: "black"
+			})
+			.rotate(minuteAngle(m), xcenter, ycenter);
+		}
+	}
+
+	var hourhand = paper.rect(
+		xnoon - (hand_width/2), 
+		ynoon + radius * ((bigbaton_height + 5)/100),
+		hand_width, radius * (100-bigbaton_height+12)/100)
+		.attr({
+			fill: "black",
+			stroke: "black"
+		});
+
+	var minutehand = paper.rect(
+		xnoon - (hand_width/2), ynoon + radius * (baton_height/100),
+		hand_width, radius * (100 + baton_height)/100)
+		.attr({
+			fill: "black",
+			stroke: "black"
+		});
+
+	var secondhand = paper.rect(
+		xnoon, ynoon + radius * (bigbaton_height/100),
+		1, radius)
+		.attr({
+			fill: "red",
+			stroke: "red"
+		});
+
+	var seconddot = paper.circle(
+		xnoon, ynoon + radius * (bigbaton_height/100) + dotradius/2, dotradius)
+		.attr({
+			fill: "red",
+			stroke: "red"
+		});
+
+	var centercircle = paper.circle(xcenter, ycenter, 5)
+		.attr({
+			fill: "red",
+			stroke: "red"
+		});
+
+	//var title = paper.text(xnoon, ynoon + .66 * radius, "Ceci n'est pas une horloge.");
+
+	window.setInterval(function() {
+		var now = new Date();
+		var hour = (now.getHours() % 12) + (now.getMinutes()/60) + (now.getSeconds()/3600);
+		var minute = now.getMinutes() + (now.getSeconds()/60) + (now.getMilliseconds()/60000);
+		var second = now.getSeconds() + (now.getMilliseconds()/1000);
+
+		hourhand.transform("r" + hourAngle(hour) + " " + xcenter + " " + ycenter);
+		minutehand.transform("r" + minuteAngle(minute) + " " + xcenter + " " + ycenter);
+		secondhand.transform("r" + minuteAngle(second) + " " + xcenter + " " + ycenter);
+		seconddot.transform("r" + minuteAngle(second) + " " + xcenter + " " + ycenter);
+	}, 125);
+
+}
+
+drawClock(400, 400, 350);
+
+</script>
+</body></html>

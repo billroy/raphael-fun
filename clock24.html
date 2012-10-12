@@ -29,15 +29,9 @@ function drawSlice(paper, cx, cy, r, startAngle, endAngle, params) {
 
 function drawClock(xpos, ypos, radius) {
 
-	var paper = Raphael(xpos, ypos, 2 * radius, 2 * radius);
+	var paper = Raphael(xpos, ypos, 2.5 * radius, 2.5 * radius);
 	var xcenter = radius;
 	var ycenter = radius;
-	var outercircle = paper.circle(xcenter, ycenter, radius)
-		.attr({
-			fill: "darkblue",
-			stroke: "black"
-		});
-
 	var xnoon = radius;
 	var ynoon = 0;
 
@@ -47,6 +41,14 @@ function drawClock(xpos, ypos, radius) {
 	var baton_height = 2;		// percent of r
 	var hand_width = 24;
 	var dotradius = bigbaton_width;
+
+//	var outercircle = paper.circle(xcenter, ycenter, radius)
+//		.attr({
+//			fill: "white",
+////			stroke: "darkblue",
+//			"stroke-width": 10//Math.floor(radius * (baton_height / 100))
+//			stroke: "white"
+//		});
 
 	drawSlice(paper, xcenter, ycenter, radius * (100-baton_height) / 100,
 		hourAngle(0), hourAngle(12),
@@ -67,8 +69,8 @@ function drawClock(xpos, ypos, radius) {
 			width,
 			radius * (baton_height/100))
 		.attr({
-			fill: (m % 5) ? "gray" : "lightgreen",
-			stroke: (m % 5) ? "gray" : "lightgreen"
+			fill: (m % 5) ? "yellow" : "lightgreen",
+			stroke: (m % 5) ? "yellow" : "lightgreen"
 		})
 		.rotate(minuteAngle(m), xcenter, ycenter);
 	}
@@ -85,29 +87,22 @@ function drawClock(xpos, ypos, radius) {
 		})
 		.rotate(hourAngle(h), xcenter, ycenter);
 
-		var hourmarker = paper.text(
-			xnoon, 
-			ynoon + radius * ((baton_height + bigbaton_height + 5)/100),
-			"" + (h))
-		.attr({"font-size": 20})
-		.rotate(hourAngle(h), xcenter, ycenter);
+		if ((h % 3) == 0) {
+			var text = (h < 10) ? "0" + h : "" + h;
+			var hourmarker = paper.text(
+				xnoon, 
+				ynoon + radius * ((baton_height + bigbaton_height + 10)/100),
+				text)
+			.attr({"font-size": 40})
+			.rotate(hourAngle(h), xcenter, ycenter);
+		}
 	}
 
 	var reticle_circle = paper.circle(xcenter, ycenter, radius * (100-baton_height) / 100)
 		.attr({stroke: "black"});
 
-
-//	var old_hourhand = paper.rect(
-//		xnoon - (hand_width/2), 
-//		ynoon + radius * ((baton_height + bigbaton_height + 10)/100),
-//		hand_width, radius * (100-bigbaton_height+12)/100)
-//		.attr({
-//			fill: "black",
-//			stroke: "black"
-//		});
-
 	var hourhand = paper.path([
-		"M", xnoon, ynoon + radius * ((baton_height + bigbaton_height + 10)/100),
+		"M", xnoon, ynoon + radius * ((baton_height + bigbaton_height + 20)/100),
 		"L", xnoon - (hand_width/1), ynoon + radius * 1.15,
 		"H", xnoon + (hand_width/1), "z"])
 		.attr({
@@ -115,13 +110,13 @@ function drawClock(xpos, ypos, radius) {
 			stroke: "white"
 		});
 
-//	var minutehand = paper.rect(
-//		xnoon - (hand_width/2), ynoon + radius * (baton_height/100),
-//		hand_width/2, radius * (100 + baton_height)/100)
-//		.attr({
-//			fill: "lightgreen",
-//			stroke: "black"
-//		});
+	var UTChourhand = paper.path([
+		"M", xnoon, ynoon + radius * ((baton_height + bigbaton_height + 20)/100),
+		"L", xnoon - (hand_width/1), ynoon + radius * 1.15,
+		"H", xnoon + (hand_width/1), "z"])
+		.attr({
+			stroke: "black"
+		});
 
 	var minutehand = paper.path([
 		"M", xnoon, ynoon + radius * (baton_height/100),
@@ -133,8 +128,8 @@ function drawClock(xpos, ypos, radius) {
 		});
 
 	var secondhand = paper.rect(
-		xnoon, ynoon + radius * (bigbaton_height/100),
-		1, radius)
+		xnoon, ynoon + radius * (baton_height/100),
+		1, radius * 1.2)
 		.attr({
 			fill: "red",
 			stroke: "red"
@@ -146,15 +141,17 @@ function drawClock(xpos, ypos, radius) {
 			stroke: "red"
 		});
 
-	//var title = paper.text(xnoon, ynoon + .66 * radius, "Ceci n'est pas une horloge.");
+	var title = paper.text(xnoon, ynoon + .66 * radius, "Ceci n'est pas une horloge.");
 
 	window.setInterval(function() {
 		var now = new Date();
-		var hour = (now.getHours() % 12) + (now.getMinutes()/60) + (now.getSeconds()/3600);
+		var hour = now.getHours() + (now.getMinutes()/60) + (now.getSeconds()/3600);
+		var UTChour = now.getUTCHours() + (now.getMinutes()/60) + (now.getSeconds()/3600);
 		var minute = now.getMinutes() + (now.getSeconds()/60) + (now.getMilliseconds()/60000);
 		var second = now.getSeconds() + (now.getMilliseconds()/1000);
 
 		hourhand.transform("r" + hourAngle(hour) + " " + xcenter + " " + ycenter);
+		UTChourhand.transform("r" + hourAngle(UTChour) + " " + xcenter + " " + ycenter);
 		minutehand.transform("r" + minuteAngle(minute) + " " + xcenter + " " + ycenter);
 		secondhand.transform("r" + minuteAngle(second) + " " + xcenter + " " + ycenter);
 	}, 125);

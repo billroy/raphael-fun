@@ -1,0 +1,105 @@
+<!#DOCTYPE HTML>
+<html><head></head>
+<body style="background:black">
+
+<script src='raphael.js'> </script>
+
+<script>
+function classicYinYang() {
+	var topeye = paper.circle(radius, radius/2, eyeradius);
+	topeye.attr("fill", "white");
+	topeye.attr("stroke", "black");
+	
+	var boteye = paper.circle(radius, 3*radius/2, eyeradius);
+	boteye.attr("fill", "black");
+	boteye.attr("stroke", "black");
+	
+	paper.path("M200,0 C350,0 350,200 200,200");
+	paper.path("M200,200 C50,200 50,400 200,400");
+}
+
+function drawYinYang(radius, xpos, ypos, neyes) {
+	var eyeradius = radius/12;
+	var xsize = 2 * radius;
+	var ysize = 2 * radius;
+	var paper = Raphael(xpos, ypos, xsize, ysize);
+
+	var outercircle = paper.circle(radius, radius, radius);
+	outercircle.attr("fill", "r#fff-#080:50-#008:90-#448");
+	outercircle.attr("stroke", "black");
+
+	linklist = [];
+	for (var i=0; i < neyes; i++) {
+		var eyeangle = -Math.PI/2 + (i * 2 * Math.PI / neyes);
+		//var eyeangle = (i * 2 * Math.PI / neyes);
+		var xouter = (radius) + radius * Math.cos(eyeangle);
+		var youter = (radius) + radius * Math.sin(eyeangle);
+		var xeye = (radius) + (radius/2) * Math.cos(eyeangle);
+		var yeye = (radius) + (radius/2) * Math.sin(eyeangle);
+	
+		paper.path(Raphael.format(
+			"M{0},{1} A{2} {2} 0 0 1 {3} {3}",
+			xouter, youter, radius/2, radius
+		));
+
+		var eye = paper.circle(xeye, yeye, eyeradius);
+		if (i&1) {
+//		if (i) {
+			eye.attr("fill", "r#fff-#000");
+			eye.attr("stroke", "black");
+		}
+		else {
+			eye.attr("fill", "r#880-#fff");
+			//eye.attr("fill", "white");
+			eye.attr("stroke", "white");
+		}
+
+		var e2 = paper.ellipse(xeye, yeye, 7, 4);
+		var e3 = paper.ellipse(xeye, yeye, 1, 3).attr("fill", "black");
+
+		var xbar = (radius) + (radius/3) * Math.cos(eyeangle);
+		var ybar = (radius) + (radius/3) * Math.sin(eyeangle);
+		linklist.push([xbar, ybar]);
+	}
+	
+	for (var i=0; i<linklist.length; i++) {
+		for (var j=i+1; j<linklist.length; j++) {
+			var color = "purple";		//	"white";
+			if ((i^j) & 1) color = "green";		// "gray";
+			else if (i&1) color = "red";		// "black";
+
+//			if (!i) color = "green";	// "gray";
+//			else color = "red";		// "black";
+	
+			paper.path(Raphael.format(
+				"M{0},{1} L{2},{3}",
+				linklist[i][0], linklist[i][1], linklist[j][0], linklist[j][1]
+			)).attr("stroke-width","2").attr("stroke", color);
+		}
+	}
+}
+
+var radius = 100;
+var xpos = 100;
+var ypos = 100;
+var gutter = 20;
+var grid = (radius * 2) + gutter;
+var neyes = 2;
+
+/*****
+drawYinYang(radius, xpos, ypos, 2);
+xpos += grid;
+drawYinYang(radius, xpos, ypos, 7);
+****/
+
+for (var row=0; row<4; row++) {
+	xpos = 100;
+	for (var col=0; col<3; col++) {
+		drawYinYang(radius, xpos, ypos, neyes++);
+		xpos += grid;
+	}
+	ypos += grid;
+}
+
+</script>
+</body></html>

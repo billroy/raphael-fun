@@ -8,31 +8,14 @@
 <script>
 
 function hourAngle(hour) {
-	return (((hour/24) * 360) + 180) % 360;
+	return (hour/12) * 360;
 }
 
 function minuteAngle(minute) {
-	return ((minute/60) * 360);
+	return (minute/60) * 360;
 }
 
-// after http://stackoverflow.com/questions/7447777/half-circle-using-raphael
-var rad = Math.PI / 180;
-function drawSlice(paper, cx, cy, r, startAngle, endAngle, params, large_flag, sweep_flag) {
-		startAngle -= 90;
-		endAngle -= 90;
-        var x1 = cx + r * Math.cos(startAngle * rad),
-        x2 = cx + r * Math.cos(endAngle * rad),
-        y1 = cy + r * Math.sin(startAngle * rad),
-        y2 = cy + r * Math.sin(endAngle * rad);
-    //return paper.path(["M", cx, cy, "L", x1, y1, "A", r, r, 0, +(endAngle - startAngle > 180), 0, x2, y2, "z"]).attr(params);
-    return paper.path([
-    	"M", cx, cy,
-    	"L", x1, y1, 
-		"A", r, r, 0, +(endAngle - startAngle > 180), 1, x2, y2, "z"]).attr(params);
-    	//"A", r, r, 0, large_flag, sweep_flag, x2, y2, "z"]).attr(params);
-}
-
-function drawClock(xpos, ypos, radius, dialcolor) {
+function drawStopwatch(xpos, ypos, radius, dialcolor) {
 	if (!dialcolor) dialcolor = "black";
 	var paper = Raphael(xpos, ypos, 2.5 * radius, 2.5 * radius);
 	var xcenter = radius;
@@ -46,47 +29,6 @@ function drawClock(xpos, ypos, radius, dialcolor) {
 	var baton_height = 2;		// percent of r
 	var hand_width = 24;
 	var dotradius = bigbaton_width;
-
-//	var outercircle = paper.circle(xcenter, ycenter, radius)
-//		.attr({
-//			fill: "white",
-////			stroke: "darkblue",
-//			"stroke-width": 10//Math.floor(radius * (baton_height / 100))
-//			stroke: "white"
-//		});
-
-	var lat = 39.8;
-	var lon = -104.9;
-	var epoch = new Date();
-	var utcoffset = epoch.getUTCHours() - epoch.getHours();
-	if (utcoffset < 0) utcoffset += 24;
-	var astrolabe = new SunriseSunset(epoch.getUTCFullYear(), epoch.getUTCMonth(), epoch.getUTCDay(), lat, lon);
-	var sunrisetime = astrolabe.sunriseLocalHours(utcoffset);
-	var sunsettime = astrolabe.sunsetLocalHours(utcoffset);
-	console.log("UTC offset:", utcoffset);
-	console.log("Sunrise:", sunrisetime);
-	console.log("Sunset:", sunsettime);
-
-	if (dialcolor == "black") {
-		drawSlice(paper, xcenter, ycenter, radius * (100-baton_height) / 100,
-			hourAngle(sunrisetime), hourAngle(sunsettime),
-			//{fill: Raphael.hsb(.6, .8, .6)});
-			{fill: "90-#00f-#fff", "stroke-width":0}, 1, 1);
-	
-		drawSlice(paper, xcenter, ycenter, radius * (100-baton_height) / 100,
-			hourAngle(sunsettime), hourAngle(sunrisetime),
-			//{fill: Raphael.hsb(.05, .8, .9)});
-			//{fill: "yellow", "fill-opacity": 0.5});
-			{fill: "90-#fff-#0f0", "stroke-width":0}, 0, 1);
-	}
-
-	var sunrisemark = paper.circle(xnoon, ynoon/2, .4 * ynoon/2)
-			.attr({fill: "0-#ff0:40-#000", stroke: dialcolor})
-			.rotate(hourAngle(sunrisetime), xcenter, ycenter);
-
-	var sunsetmark = paper.circle(xnoon, ynoon/2, .4 * ynoon/2)
-			.attr({fill: "0-#000-#ff0:60", stroke: dialcolor})
-			.rotate(hourAngle(sunsettime), xcenter, ycenter);
 
 	for (var m=0; m<60; m++) {
 		var width = (m % 5) ? baton_width : baton_width + 4;
@@ -112,7 +54,7 @@ function drawClock(xpos, ypos, radius, dialcolor) {
 		}
 	}
 
-	for (var h=0; h<24; h++) {
+	for (var h=0; h<12; h++) {
 		var height = radius * (bigbaton_height/100);
 		if (h % 3) height = height * .66;
 
@@ -153,31 +95,23 @@ function drawClock(xpos, ypos, radius, dialcolor) {
 			stroke: "black"
 		});
 
-	if (ynoon) {
-		var suncircle = paper.circle(xnoon, ynoon/2, .6 * ynoon/2)
-			.attr({fill: "yellow", stroke: dialcolor});
-	}
-
-	var UTChourhand = paper.path([
-		"M", xnoon, tip,
-		"L", xnoon - (hand_width/2), tip + (hand_width/2),
-		"v", radius/2,
-		"h", hand_width,
-		"v", -radius/2, "z"])
-		.attr({
-			stroke: dialcolor,
-			"stroke-width": 2
-		});
+//	var UTChourhand = paper.path([
+//		"M", xnoon, tip,
+//		"L", xnoon - (hand_width/2), tip + (hand_width/2),
+//		"v", radius/2,
+//		"h", hand_width,
+//		"v", -radius/2, "z"])
+//		.attr({
+//			stroke: dialcolor,
+//			"stroke-width": 2
+//		});
 
 	var mtip = ynoon + radius * (baton_height/100);
 	var minutehand = paper.path([
-//		"M", xnoon, mtip,
-//		"L", xnoon - (hand_width/2), ynoon + radius * 1.,
-//		"H", xnoon + (hand_width/2), "z"])
 		"M", xnoon, mtip,
-		"L", xnoon - (hand_width/4), mtip + (hand_width/4),
+		"L", xnoon - (hand_width/2), mtip + (hand_width/2),
 		"v", radius - ynoon,
-		"h", hand_width/2,
+		"h", hand_width,
 		"v", -(radius - ynoon), "z"])
 		.attr({
 			fill: dialcolor,
@@ -208,8 +142,6 @@ function drawClock(xpos, ypos, radius, dialcolor) {
 		var second = now.getSeconds() + (now.getMilliseconds()/1000);
 
 		hourhand.transform("r" + hourAngle(hour) + " " + xcenter + " " + ycenter);
-		if (UTChourhand) UTChourhand.transform("r" + hourAngle(UTChour) + " " + xcenter + " " + ycenter);
-		if (suncircle) suncircle.transform("r" + hourAngle(hour) + " " + xcenter + " " + ycenter);
 		minutehand.transform("r" + minuteAngle(minute) + " " + xcenter + " " + ycenter);
 		secondhand.transform("r" + minuteAngle(second) + " " + xcenter + " " + ycenter);
 
@@ -217,7 +149,7 @@ function drawClock(xpos, ypos, radius, dialcolor) {
 
 }
 
-drawClock(0, 0, 250, "mediumspringgreen");
+drawStopwatch(0, 0, 250, "mediumspringgreen");
 //drawClock(0, 0, 250, "orangered");
 //drawClock(600, 0, 250, "orangered");
 

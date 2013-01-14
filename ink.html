@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<!-- Copyright 2013 by Bill Roy - MIT license - See LICENSE file -->
+<html><head>
+	<title>well of letting go</title>
+
+	<script type='text/javascript' src='./jquery-1.8.2.min.js'></script>
+	<script type='text/javascript' src='./raphael.js'></script>
+
+</head><body style='background:gray, font-family:sans-serif'>
+
+<script type='text/javascript' charset='utf8'>
+
+$(document).ready(function() {
+
+	//document.ontouchmove = function(e) {e.preventDefault()};	// stop bounce scrolling on iPad
+
+	function Ink(options) {
+		return this.init(options || {});
+	}
+	
+	Ink.prototype = {
+		init: function(options) {
+			this.fill = options.fill || 'antiquewhite';
+			this.stroke = options.stroke || 'slategray';
+			this.strokewidth = 1;
+			
+			this.x = options.x || 0;
+			this.y = options.y || 0;
+			this.w = options.w || $(window).width();
+			this.h = options.h || $(window).height();
+
+			this.paper = Raphael(0, 0, $(window).width(), $(window).height());
+			this.face = this.paper.rect(this.x, this.y, this.w, this.h)
+				.attr({stroke: this.stroke, fill: this.fill})
+				.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this);
+
+			return this;
+		},
+
+		dragStart: function(x, y, e) {
+			this.x = x;
+			this.y = y;
+		},
+
+		dragMove: function (dx, dy, x, y, e) {
+			var path = ([
+				"M", this.x, ' ', this.y, 
+				"L", x, ' ', y
+			]).join('');
+
+			this.speed = Math.sqrt((this.x-x)*(this.x-x) + (this.y-y)*(this.y-y));
+			var beta = 0.90;
+			this.strokewidth = (this.strokewidth * beta) + (this.speed * (1-beta));
+
+			var segment = this.paper.path(path)
+				.drag(this.dragMove, this.dragStart, this.dragEnd, this, this, this)
+				.attr({stroke:this.stroke, fill: this.fill, 
+					'stroke-width':this.strokewidth/15});
+
+			var displaytime = 10000;
+			var fadetime = 4000;
+
+			window.setTimeout(function() {
+				segment.animate({opacity:0}, fadetime, function() {
+					segment.remove();
+				});
+			}, displaytime);
+
+			this.x = x;
+			this.y = y;
+		},
+		dragEnd: function(e) {
+		}
+	}
+
+	var ink = new Ink({
+		fill:'antiquewhite',
+		stroke:'red'
+	});
+
+}); 	// document.ready
+</script>
+<div id='editor'>
+	<div id='dataTable'></div>
+	<input type='button' value='cancel' id='editcancel'></input>
+	<input type='button' value='+' id='editadd'></input>
+	<input type='button' value='-' id='editdelete'></input>
+	<input type='button' value='save' id='editsave'></input>
+</div>
+<div id='contextmenu'></div>
+<div id='editmenu'></div>
+<div id='player'></div>
+</body></html>

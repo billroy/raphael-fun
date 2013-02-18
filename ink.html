@@ -4,7 +4,7 @@
 	<title>the moving hand</title>
 	<script type='text/javascript' src='./jquery-1.8.2.min.js'></script>
 	<script type='text/javascript' src='./raphael.js'></script>
-</head><body style='background:gray, font-family:sans-serif'>
+</head><body>
 
 <script type='text/javascript' charset='utf8'>
 
@@ -16,7 +16,7 @@ $(document).ready(function() {
 	
 	Ink.prototype = {
 		init: function(options) {
-			this.fill = options.fill || 'antiquewhite';
+			this.fill = options.fill || 'ivory';
 			this.stroke = options.stroke || 'slategray';
 			this.strokewidth = 1;
 			
@@ -40,8 +40,8 @@ $(document).ready(function() {
 
 		dragMove: function (dx, dy, x, y, e) {
 			var path = ([
-				"M", this.x, ' ', this.y, 
-				"L", x, ' ', y
+				'M', this.x, ' ', this.y, 
+				'L', x, ' ', y
 			]).join('');
 
 			this.speed = Math.sqrt((this.x-x)*(this.x-x) + (this.y-y)*(this.y-y));

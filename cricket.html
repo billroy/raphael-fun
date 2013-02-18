@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<!-- 
+	Copyright 2013 by Bill Roy - MIT license - See LICENSE file
+-->
+<html><head>
+<title>Cricket</title>
+</head><body bgcolor='black'>
+
+<script type='text/javascript' charset='utf8'>
+
+// via http://socialsounddesign.com/questions/5901/how-do-you-design-a-cricket-sound
+var oscillators = [
+	{freq:  4170, gain: 0.5},
+	{freq:  8340, gain: 0.8},
+	{freq: 12480, gain: 0.8},
+	{freq: 16680, gain: 1.0}
+];
+var master_gain = 0.1;
+
+var context = new webkitAudioContext();		//webkit browsers only
+
+function initOscillators() {
+
+	for (var i=0; i<oscillators.length; i++) {
+		var osc = context.createOscillator();
+		osc.type = osc.SINE;
+		osc.frequency.value = oscillators[i].freq;
+		//osc.detune.value = 0;
+		var gain = context.createGainNode();
+		gain.gain.value = 0;	//oscillators[i].gain * master_gain;
+		osc.connect(gain);
+		gain.connect(context.destination);
+		osc.noteOn && osc.noteOn(0);
+		oscillators[i].oscnode = osc;
+		oscillators[i].gainnode = gain;
+	}
+}
+
+function noteOn() {
+	for (var i=0; i<oscillators.length; i++) oscillators[i].gainnode.gain.value = oscillators[i].gain * master_gain;
+}
+
+function noteOff() {
+	for (var i=0; i<oscillators.length; i++) oscillators[i].gainnode.gain.value = 0;
+}
+
+initOscillators();
+
+var stateTimes = [20, 30, 20, 30, 20, 30, 20, 500];
+var state = 0;
+
+function handleState() {
+console.log('handleState:', state, stateTimes[state], state&1);
+	window.setTimeout(handleState, stateTimes[state]);
+	if (state&1) noteOff();
+	else noteOn();
+	if (++state >= stateTimes.length) state = 0;
+}
+handleState();
+
+
+</script>
+</body></html>
